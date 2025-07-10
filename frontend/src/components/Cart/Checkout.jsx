@@ -38,7 +38,7 @@ const Checkout = () => {
 
   const handleCreateCheckout = (e)=>{
     e.preventDefault();
-    //setCheckoutId(123);
+    setCheckoutId(123);
   };
 
   const handlePaymentSuccess = (details) =>{
@@ -180,8 +180,9 @@ const Checkout = () => {
           </div>
         </form>
       </div>
+      {/* Right Section */}
     </div>
-  )
-}
+  );
+};
 
 export default Checkout
