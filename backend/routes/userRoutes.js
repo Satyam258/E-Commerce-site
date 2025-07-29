@@ -9,15 +9,16 @@ const router = express.Router();
 // @access Public
 
 router.post("/register",async(req,res)=>{
-    const {name,email,password} = req.body;
+    const {name,email,password,role} = req.body;
 
     try {
         //Registration logic
         let user = await User.findOne({email});
 
         if(user) return res.status(400).json({message:"User already exists"});
+        const finalRole = role || "customer";
 
-        user = new User({name,email,password});
+        user = new User({name,email,password,role:finalRole});
         await user.save();
 
         //Create JWT Payload
