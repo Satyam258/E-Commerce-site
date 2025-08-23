@@ -16,7 +16,7 @@ router.post("/",protect,async(req,res)=>{
     const {checkoutItems, shippingAddress, paymentMethod, totalPrice} = req.body;
     console.log(req.body);
 
-    if(!checkoutItems  || checkoutItems .length === 0){
+    if(!checkoutItems  || checkoutItems?.length === 0){
         return res.status(400).json({message:"No items in checkout"});
     }
 
