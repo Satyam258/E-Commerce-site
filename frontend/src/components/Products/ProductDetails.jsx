@@ -1,61 +1,37 @@
 import React, { useEffect, useState } from 'react'
 import { toast } from 'sonner';
 import ProductGrid from './ProductGrid';
+import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../../redux/slices/cartSlice';
+import { useSelector } from 'react-redux';
+import { fetchProductDetails, fetchSimilarProducts } from '../../redux/slices/productsSlice';
 
-const selectedProduct = {
-  name:"Stylish Jacket",
-  price:120,
-  originalPrice: 200,
-  description:"This is a stylish Jacket perfect for any occasion",
-  brand:"FashionBrand",
-  material:"Leather",
-  sizes:["S","M","L","XL"],
-  colors: ["Red","Black"],
-  images:[
-    {
-      url: "https://picsum.photos/500/500?random=1",
-      altText: "Stylish Jacket 1"
-    },
-   {
-      url: "https://picsum.photos/500/500?random=2",
-      altText: "Stylish Jacket 2"
-    },
-  ],
-};
 
-const similarProducts =[
-  {
-    _id:1,
-    name:"Product 1",
-    price: 200,
-    images: [{url :"https://picsum.photos/500/500?random=3"}]
-  },
-  {
-    _id:2,
-    name:"Product 2",
-    price: 250,
-    images: [{url :"https://picsum.photos/500/500?random=4"}]
-  },
-  {
-    _id:3,
-    name:"Product 3",
-    price: 100,
-    images: [{url :"https://picsum.photos/500/500?random=5"}]
-  },
-  {
-    _id:4,
-    name:"Product 4",
-    price: 260,
-    images: [{url :"https://picsum.photos/500/500?random=6"}]
-  },
-]
+const ProductDetails = ({productId}) => {
+  const {id} = useParams();
+  const dispatch = useDispatch();
+  const { selectedProduct, loading, error, similarProducts } = useSelector(
+  (state) => state.products
+);
 
-const ProductDetails = () => {
+const { user, guestId } = useSelector((state) => state.auth);
+
   const [mainImage, setMainImage] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
+
+  const productFetchId = productId || id;
+
+useEffect(() => {
+  if (productFetchId) {
+    dispatch(fetchProductDetails(productFetchId));
+    dispatch(fetchSimilarProducts({ id: productFetchId }));
+  }
+}, [dispatch, productFetchId]);
+
 
   useEffect(() => {
     if(selectedProduct?.images?.length>0){
@@ -81,55 +57,84 @@ const handleAddToCart = () => {
 
   setIsButtonDisabled(true);
 
-  setTimeout(() => {
+  dispatch(
+    addToCart({
+      productId:productFetchId,
+      quantity,
+      size:selectedSize,
+      color:selectedColor,
+      guestId,
+      userId: user?._id,
+    })
+  ).then(()=>{
     toast.success("Product added to cart!",{
-      duration:1000,
+      duration: 1000,
     });
-    setIsButtonDisabled(false)
-  },500);
+  })
+  .finally(()=>{
+    setIsButtonDisabled(false);
+  });
 };
+
+if(loading){
+  return <p>Loading.....</p>
+}
+if(error){
+  return <p>Error: {error}</p>;
+}
 
   return (
     <div className='p-6'>
+      {selectedProduct &&(
       <div className='max-w-6xl mx-auto bg-white p-8'>
         <div className='flex flex-col md:flex-row'>
           {/* /Left thumbnails */}
           <div className='hidden md:flex flex-col space-y-4 mr-6'>
-            {selectedProduct.images.map((image,index) => (
-              <img
-              key={index}
-              src={image.url}
-              alt={image.altText || `Thumbnaill ${index}`}
-              className={`w-20 h-20 object-cover rounded-lg cursor-pointer border${
-                mainImage === image.url ? "border-black border-2" : "border-gray-300"
-              }`}
-              onClick={() => setMainImage(image.url)}
-              />
-            ))}
+            {selectedProduct.images?.map((image, index) =>
+              image?.url ? (
+                <img
+                  key={index}
+                  src={image.url}
+                  alt={image.altText || `Thumbnail ${index}`}
+                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${
+                    mainImage === image.url ? "border-black border-2" : "border-gray-300"
+                  }`}
+                  onClick={() => setMainImage(image.url)}
+                />
+              ) : null
+            )}
           </div>
           {/* Main Image */}
           <div className='md:w-1/2'>
              <div className='mb-4'>
-              <img
-               src={mainImage}
-               alt="Main Product"
-               className='w-full h-auto object-cover rounded-lg'
-              />
-             </div>
+              {mainImage ? (
+                <img
+                  src={mainImage}
+                  alt="Main Product"
+                  className='w-full h-auto object-cover rounded-lg'
+                />
+              ) : (
+                <div className="w-full h-64 bg-gray-200 flex items-center justify-center rounded-lg">
+                  <span className="text-gray-500">No Image Available</span>
+                </div>
+              )}
+            </div>
           </div>
           {/* Mobile Thumbnail */}
-          <div className='md:hidden flex oversrcoll-x-scroll space-x-4
+          <div className='md:hidden flex overflow-x-scroll space-x-4
           mb-4'>
-            {selectedProduct.images.map((image,index) => (
-              <img
-              key={index}
-              src={image.url}
-              alt={image.altText || `Thumbnaill ${index}`}
-              className={`w-20 h-20 object-cover rounded-lg cursor-pointer border${
-                mainImage === image.url ? "border-black border-2" : "border-gray-300"
-              }`}
-              onClick={()=> setMainImage(image.url)}
-              />
+            {selectedProduct.images?.map((image,index) => (
+              image?.url ? (
+                <img
+                  key={index}
+                  src={image.url}
+                  alt={image.altText || `Thumbnail ${index}`}
+                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border ${
+                    mainImage === image.url ? "border-black border-2" : "border-gray-300"
+                  }`}
+                  onClick={() => setMainImage(image.url)}
+                />
+              ) : null
             ))}
           </div>
 
@@ -227,9 +232,10 @@ const handleAddToCart = () => {
           <h2 className='text-2xl text-center font-medium mb-4'>
             You May Also Like
           </h2>
-          <ProductGrid products={similarProducts}/>
+          <ProductGrid products={similarProducts} loading={loading} error={error} />
         </div>
       </div>
+      )}
     </div>
   )
 }

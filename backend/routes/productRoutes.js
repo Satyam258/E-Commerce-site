@@ -167,44 +167,46 @@ router.get("/",async(req,res)=>{
         let query = {};
 
         //Filter Logic
-        if(collection && collection.toLocaleLowerCase() != "all"){
-            query.collection = collection;
-        }
+        if(collection && collection.toLowerCase() != "all"){
+    query.collections = collection; // <-- fix plural
+}
 
-        if(category && category.toLocaleLowerCase() != "all"){
-            query.category = category;
-        }
+if(category && category.toLowerCase() != "all"){
+    query.category = category.replace("+", " ");
+}
 
-        if(material){
-            query.material = {$in: material.split(",")};
-        }
+if(material){
+    query.material = { $in: material.split(",") };
+}
 
-        if(brand){
-            query.brand = {$in: brand.split(",")};
-        }
+if(brand){
+    query.brand = { $in: brand.split(",") };
+}
 
-        if(size){
-            query.sizes = {$in: size.split(",")};
-        }
-        if(color){
-            query.colors = {$in:[color]};
-        }
-        if(gender){
-            query.gender = gender;
-        }
-        if(minPrice || maxPrice){
-            query.price = {};
-            if(minPrice) query.price.$gte = Number(minPrice);
-            if(maxPrice) query.price.$gte = Number(maxPrice);
-        }
+if(size){
+    query.sizes = { $in: size.split(",") };
+}
 
-        if(search){
-            query.$or = [
-                {name:{ $regex: search, $options: "i"}},
-                {description:{$regex: search, $options:"i"}},
-            ];
-        }
+if(color){
+    query.colors = { $in: color.split(",") };
+}
 
+if(gender){
+    query.gender = gender;
+}
+
+if(minPrice || maxPrice){
+    query.price = {};
+    if(minPrice) query.price.$gte = Number(minPrice);
+    if(maxPrice) query.price.$lte = Number(maxPrice); // <-- fix
+}
+
+if(search){
+    query.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { description: { $regex: search, $options: "i" } },
+    ];
+}
         //Sort Logic
         let sort ={};
         if(sortBy){

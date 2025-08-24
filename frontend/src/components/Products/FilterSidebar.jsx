@@ -111,8 +111,8 @@ const updatedURLParams = (newFilters) =>{
 const handlePriceChange = (e) =>{
     const newPrice = e.target.value;
     setPriceRange([0,newPrice]);
-    const newFilters = { ...filters, minPrice: newPrice};
-    setFilters(filters);
+    const newFilters = { ...filters, maxPrice: newPrice};
+    setFilters(newFilters);
     updatedURLParams(newFilters);
 };
 
