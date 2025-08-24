@@ -11,7 +11,7 @@ export const createCheckout = createAsyncThunk(
         checkoutData,
         {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem(userToken)}`,
+            Authorization: `Bearer ${localStorage.getItem("userToken")}`,
           },
         }
       );
@@ -42,7 +42,7 @@ const checkoutSlice = createSlice({
     })
     .addCase(createCheckout.rejected, (state, action) => {
       state.loading = false;
-      state.error = action.payload.message;
+       state.error = action.payload?.message || "Failed to create checkout.";
     });
 },
 
