@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "name": "backend",
+  "functions": {
+    "api/server.js": {
+      "runtime": "@vercel/node"
+    }
+  }
+}

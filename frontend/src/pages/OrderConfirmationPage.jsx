@@ -1,36 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useDispatch, useSelector} from "react-redux"
+import {useNavigate} from "react-router-dom"
+import { clearCart} from "../redux/slices/cartSlice"
 
-const checkout = {
-    _id:"12323",
-    createdAt: new Date(),
-    checkoutItems:[
-        {
-            productId:"1",
-            name:"Jacket",
-            color:"black",
-            size:"M",
-            price:150,
-            quantity:1,
-            image:"https://picsum.photos/150?random=1",
-        },
-        {
-            productId:"2",
-            name:"T-Shirt",
-            color:"green",
-            size:"M",
-            price:160,
-            quantity:2,
-            image:"https://picsum.photos/150?random=2",
-        },
-    ],
-    ShippingAddress:{
-        address:"123 Fashion Street",
-        city: "New York",
-        country:"USA",
-    },
-};
+
 
 const OrderConfirmationPage = () => {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const { checkout} = useSelector((state)=> state.checkout);
+
+    //Clear the cart when the order is confirmed
+    useEffect(()=>{
+        if(checkout && checkout._id){
+            dispatch(clearCart());
+            localStorage.removeItem("cart");
+        }else{
+            navigate("/my-orders");
+        }
+    },[checkout,dispatch,navigate]);
 
     const calculateEstimatedDelivery =(createdAt)=>{
         const orderDate = new Date(createdAt);
@@ -93,10 +81,10 @@ const OrderConfirmationPage = () => {
                     <div>
                        <h4 className='text-lg font-semibold mb-2'>Delivery</h4>
                        <p className='text-gray-600'>
-                       {checkout.ShippingAddress.address} </p>
+                       {checkout.shippingAddress.address} </p>
                        <p className='text-gray-600'>
-                        {checkout.ShippingAddress.city},{" "}
-                        {checkout.ShippingAddress.country}
+                        {checkout?.shippingAddress?.city},{" "}
+                        {checkout?.shippingAddress?.country}
                         </p> 
                     </div>
                 </div>
